@@ -57,7 +57,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 		// Empezamos con una magnitud de 1.0 (0 dB)
 		double mag = 1.0;
 
-		if (!monoChain.isBypassed<ChainPositions::LowCut>())
+		if (!monoChain.isBypassed<ChainPositions::Peak>())
 			mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);
 
 		if (!lowcut.isBypassed<0>())
