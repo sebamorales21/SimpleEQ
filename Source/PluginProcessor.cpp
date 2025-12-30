@@ -219,12 +219,16 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts) {
     return settings;
 }
 
+Coefficients makePeakFilter(const ChainSettings &chainSettings, double sampleRate) {
+    return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, chainSettings.peakFreq, chainSettings.peakQuality, juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
+}
+
 void SimpleEQAudioProcessor::updatePeakFilter(const ChainSettings &chainSettings) {
 
     // La funcion makePeakFilter crea los coeficientes para un filtro peak a partir de fs, f central, Q y ganancia
     // peakCoeficcients es del tipo std::shared_ptr<juce::dsp::IIR::Coefficients<float>> que es un vector que contiene los coeficientes a y b del biquad.
     // En rigor se usa comunmente asi: filter.coefficients, pero en mi caso uso cadenas de procesamiento dsp::ProcessorChain, y ahi se accede a los coeficientes de esta manera.
-    auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), chainSettings.peakFreq, chainSettings.peakQuality, juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
+    //auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), chainSettings.peakFreq, chainSettings.peakQuality, juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
 
     // Le doy los coeficientes al filtro peak de la cadena izquierda, provenientes de la funcion makePeakFilter. Que a su vez vienen de los valores guardados en apvts a traves de channelSettings. 
     // .coeficients es un puntero compartido (igual que peakCoefficients: std::shared_ptr<> ) a un objeto de la clase Coefficients<float>, que contiene los coeficientes a y b del biquad.
@@ -232,12 +236,13 @@ void SimpleEQAudioProcessor::updatePeakFilter(const ChainSettings &chainSettings
     // *rightChain.get <ChainPositions::Peak>().coefficients = *peakCoefficients;
 
 	// Uso la funcion updateCoefficients para actualizar los coeficientes del filtro peak en ambas cadenas. En vez de usar lo de arriba directamente.
+	auto peakCoefficients = makePeakFilter(chainSettings, getSampleRate()); // Version actualizada usando la funcion makePeakFilter.
 	updateCoefficients(leftChain.get <ChainPositions::Peak>().coefficients, peakCoefficients);
 	updateCoefficients(rightChain.get <ChainPositions::Peak>().coefficients, peakCoefficients);
 
 }
 
-void SimpleEQAudioProcessor::updateCoefficients(Coefficients &old, const Coefficients &replacements) {
+void updateCoefficients(Coefficients &old, const Coefficients &replacements) {
 	*old = *replacements;
 }
 
