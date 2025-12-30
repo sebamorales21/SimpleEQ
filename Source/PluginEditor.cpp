@@ -34,9 +34,7 @@ ResponseCurveComponent::~ResponseCurveComponent()
 void ResponseCurveComponent::paint(juce::Graphics& g)
 {
 	using namespace juce;
-	// (Our component is opaque, so we must completely fill the background with a solid colour)
-	g.fillAll(Colours::black.brighter(0.1));
-
+	
 	auto responseArea = getLocalBounds();
 	auto w = responseArea.getWidth();
 
