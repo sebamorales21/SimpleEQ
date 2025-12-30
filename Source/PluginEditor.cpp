@@ -142,6 +142,23 @@ void SimpleEQAudioProcessorEditor::resized()
 	peakQualitySlider.setBounds(bounds);
 }
 
+void SimpleEQAudioProcessorEditor::parameterValueChanged(int parameterIndex, float newValue)
+{
+	parametersChanged.set(true);
+}
+
+void SimpleEQAudioProcessorEditor::timerCallback()
+{
+	if (parametersChanged.compareAndSetBool(false, true))
+	{
+		// Si llegamos aqui es que algun parametro ha cambiado
+		// Actualizamos la cadena de filtros
+		monoChain.updateFilters(audioProcessor.apvts);
+		// Y repintamos la interfaz
+		repaint();
+	}
+}
+
 
 // Devuelve un vector con punteros a todos los sliders del editor, para luego poder iterar sobre ellos y añadirlos todos de una vez.
 std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps() {
