@@ -30,11 +30,23 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcess
         addAndMakeVisible(comp);
 	}
 
+	const auto& params = audioProcessor.getParameters();
+	for (auto* param : params) {
+		param->addListener(this);
+	}
+
+	// Inicia el timer para que llame a timerCallback cada 50ms
+	startTimer(50);
+
     setSize (375, 525);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
 {
+	const auto& params = audioProcessor.getParameters();
+	for (auto* param : params) {
+		param->removeListener(this);
+	}
 }
 
 //==============================================================================
@@ -151,10 +163,10 @@ void SimpleEQAudioProcessorEditor::timerCallback()
 {
 	if (parametersChanged.compareAndSetBool(false, true))
 	{
-		// Si llegamos aqui es que algun parametro ha cambiado
-		// Actualizamos la cadena de filtros
-		monoChain.updateFilters(audioProcessor.apvts);
-		// Y repintamos la interfaz
+		auto chainSettings = getChainSettings(audioProcessor.apvts);
+		auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
+		updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
+
 		repaint();
 	}
 }
