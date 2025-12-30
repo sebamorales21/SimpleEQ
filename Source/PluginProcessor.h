@@ -29,7 +29,6 @@ using Filter = juce::dsp::IIR::Filter<float>;
 using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
 using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
 
-// Aqui pongo los tres elementos de la cadena en el mismo orden de MonoChain
 enum ChainPositions {
     LowCut,
     Peak,

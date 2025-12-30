@@ -16,7 +16,7 @@ ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audi
 		param->addListener(this);
 	}
 
-	// Construye la cadena de filtros inicial
+	// Construye la cadena de filtros inicial antes de que se pinte por primera vez
 	updateChain();
 
 	// Inicia el timer para que llame a timerCallback cada 50ms
@@ -105,8 +105,6 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 	g.strokePath(responseCurve, PathStrokeType(2.0f));
 }
 
-
-
 void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float newValue)
 {
 	parametersChanged.set(true);
@@ -138,6 +136,7 @@ void ResponseCurveComponent::updateChain() {
 }
 
 //==============================================================================
+
 SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor& p)
     : AudioProcessorEditor (&p),
 	audioProcessor (p),
@@ -166,7 +165,6 @@ SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
 {
 }
 
-//==============================================================================
 void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
 {
 	using namespace juce;
@@ -204,8 +202,9 @@ void SimpleEQAudioProcessorEditor::resized()
 	peakQualitySlider.setBounds(bounds);
 }
 
-// Devuelve un vector con punteros a todos los sliders del editor, para luego poder iterar sobre ellos y añadirlos todos de una vez.
-std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps() {
+//==============================================================================
 
+std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps() {
+	// Devuelve un vector con punteros a todos los sliders del editor, para luego poder iterar sobre ellos y añadirlos todos de una vez.
     return { &peakFreqSlider, &peakGainSlider, &peakQualitySlider, &lowCutFreqSlider, &highCutFreqSlider, &lowCutSlopeSlider, &highCutSlopeSlider, &responseCurveComponent };
 }

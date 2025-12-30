@@ -225,21 +225,10 @@ Coefficients makePeakFilter(const ChainSettings &chainSettings, double sampleRat
 
 void SimpleEQAudioProcessor::updatePeakFilter(const ChainSettings &chainSettings) {
 
-    // La funcion makePeakFilter crea los coeficientes para un filtro peak a partir de fs, f central, Q y ganancia
-    // peakCoeficcients es del tipo std::shared_ptr<juce::dsp::IIR::Coefficients<float>> que es un vector que contiene los coeficientes a y b del biquad.
-    // En rigor se usa comunmente asi: filter.coefficients, pero en mi caso uso cadenas de procesamiento dsp::ProcessorChain, y ahi se accede a los coeficientes de esta manera.
-    //auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), chainSettings.peakFreq, chainSettings.peakQuality, juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
-
-    // Le doy los coeficientes al filtro peak de la cadena izquierda, provenientes de la funcion makePeakFilter. Que a su vez vienen de los valores guardados en apvts a traves de channelSettings. 
-    // .coeficients es un puntero compartido (igual que peakCoefficients: std::shared_ptr<> ) a un objeto de la clase Coefficients<float>, que contiene los coeficientes a y b del biquad.
-    // *leftChain.get <ChainPositions::Peak>().coefficients = *peakCoefficients;
-    // *rightChain.get <ChainPositions::Peak>().coefficients = *peakCoefficients;
-
-	// Uso la funcion updateCoefficients para actualizar los coeficientes del filtro peak en ambas cadenas. En vez de usar lo de arriba directamente.
 	auto peakCoefficients = makePeakFilter(chainSettings, getSampleRate()); // Version actualizada usando la funcion makePeakFilter.
+
 	updateCoefficients(leftChain.get <ChainPositions::Peak>().coefficients, peakCoefficients);
 	updateCoefficients(rightChain.get <ChainPositions::Peak>().coefficients, peakCoefficients);
-
 }
 
 void updateCoefficients(Coefficients &old, const Coefficients &replacements) {
@@ -248,27 +237,17 @@ void updateCoefficients(Coefficients &old, const Coefficients &replacements) {
 
 void SimpleEQAudioProcessor::updateLowCutFilters(const ChainSettings &chainSettings) {
 
-   // Este es el diseno del filtro low cut, usando Butterworth de orden alto.
-   // La funcion designIIRHighpassHighOrderButterworthMethod va a devolver un vector de punteros a coeficientes, cada uno correspondiente a un biquad del filtro.
-   // Especificamente, lowCutCoefficients es un vector del tipo std::vector<std::shared_ptr<juce::dsp::IIR::Coefficients<float>>>, donde Coefficients<float> es la clase que contiene los coeficientes a, b del biquad.
-   // y cada elemento del vector corresponde a un biquad del filtro, en orden.
-   //auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCutFreq, getSampleRate(), 2 * (chainSettings.lowCutSlope + 1));
-
-    // Aqui, leftLowCut es una referencia al primer elemento de la cadena leftChain, que es el filtro low cut.
-    // Una referencia es un alias a una variable, es decir, otro nombre para referirse a la misma variable en memoria.
-    // Entonces si modifico la referencia tambien estoy modificando la variable original.
 	auto lowCutCoefficients = makeLowCutFilter(chainSettings, getSampleRate()); // Version actualizada usando la funcion makeLowCutFilter.
+
     auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
     updateCutFilter(leftLowCut, lowCutCoefficients, chainSettings.lowCutSlope);
 
-    // Repetir para el canal derecho
     auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
     updateCutFilter(rightLowCut, lowCutCoefficients, chainSettings.lowCutSlope);
 }
 
 void SimpleEQAudioProcessor::updateHighCutFilters(const ChainSettings &chainSettings) {
 
-   // auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCutFreq, getSampleRate(), 2 * (chainSettings.highCutSlope + 1));
 	auto highCutCoefficients = makeHighCutFilter(chainSettings, getSampleRate()); // Version actualizada usando la funcion makeHighCutFilter.
 
     auto& leftHighCut = leftChain.get<ChainPositions::HighCut>();
@@ -308,6 +287,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
     return layout;
 }
 //==============================================================================
+
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
