@@ -3,6 +3,10 @@
 <JUCERPROJECT id="krwBDZ" name="SimpleEQ" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="mB4Yv7" name="SimpleEQ">
+    <GROUP id="{509D9D8F-719A-4229-DC05-606FCD1C2C85}" name="LookAndFeel">
+      <FILE id="Wqd3Rn" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/LookAndFeel.cpp"/>
+      <FILE id="n4mKmB" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
+    </GROUP>
     <GROUP id="{A707365C-4250-EC1E-7426-424AF1652755}" name="Source">
       <FILE id="tx7Cx4" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
