@@ -177,7 +177,7 @@ bool SimpleEQAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleEQAudioProcessor::createEditor()
 {
-	//return new juce::GenericAudioProcessorEditor(*this);  // Editor generico que crea JUCE automaticamente: usar para probar.
+	//return new juce::GenericAudioProcessorEditor(*this);
 
 	// Editor personalizado
     return new SimpleEQAudioProcessorEditor (*this);

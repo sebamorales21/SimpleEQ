@@ -30,8 +30,11 @@ struct ResponseCurveComponent : juce::Component,
     ~ResponseCurveComponent() override;
     void paint(juce::Graphics& g) override;
 
+	// Funciones provenientes de AudioProcessorParameter::Listener
     void parameterValueChanged(int parameterIndex, float newValue) override;
 	void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override {};
+
+	// Funcion proveniente de Timer
 	void timerCallback() override;
 
 	MonoChain monoChain;

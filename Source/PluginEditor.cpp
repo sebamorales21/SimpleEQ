@@ -18,7 +18,7 @@ ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audi
 
 	// Construye la cadena de filtros inicial antes de que se pinte por primera vez
 	updateChain();
-
+		
 	// Inicia el timer para que llame a timerCallback cada 50ms
 	startTimer(50);
 }
@@ -41,7 +41,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 	auto& lowcut = monoChain.get<ChainPositions::LowCut>();
 	auto& peak = monoChain.get<ChainPositions::Peak>();
 	auto& highcut = monoChain.get<ChainPositions::HighCut>();
-
+		
 	auto sampleRate = audioProcessor.getSampleRate();
 
 	// En este vector se guardaran las magnitudes de cada frecuencia
@@ -58,7 +58,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 		double mag = 1.0;
 
 		if (!monoChain.isBypassed<ChainPositions::Peak>())
-			mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);
+			mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);  // Aca uso -> porque peak es un IIRFilter y coefficients es un puntero a IIRCoefficients dentro de IIRFilter
 
 		if (!lowcut.isBypassed<0>())
 			mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
@@ -83,8 +83,10 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 	}
 
 	// Ahora dibujamos la respuesta en frecuencia
+	// Path es una clase de JUCE que permite dibujar lineas complejas
 	Path responseCurve;
 
+	// Funcion lambda para mapear la magnitud (en dB) a la posicion Y en la zona de respuesta, será usada dentro del bucle de dibujo
 	const double outputMin = responseArea.getBottom();
 	const double outputMax = responseArea.getY();
 	auto map = [outputMin, outputMax](double input)
@@ -92,8 +94,10 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 			return jmap(input, -24.0, 24.0, outputMin, outputMax);
 		};
 
+	// Inicio del path en el primer punto
 	responseCurve.startNewSubPath(responseArea.getX(), map(mags.front()));
 
+	// Linea a cada punto siguiente
 	for (size_t i = 1; i < mags.size(); ++i) {
 		responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
 	}
@@ -114,6 +118,7 @@ void ResponseCurveComponent::timerCallback()
 {
 	if (parametersChanged.compareAndSetBool(false, true))
 	{
+		// Si los parametros han cambiado (true), actualizamos la cadena y repintamos y parametrosChanged a false
 		updateChain();
 		repaint();
 	}
