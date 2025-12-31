@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "LookAndFeel.h"
 
 // CustomRotarySlider es una subclase de Slider que ya tiene el estilo rotary y sin caja de texto.
 // Asi evitamos repetir ese codigo cada vez que creamos un slider de este tipo.
@@ -61,6 +62,8 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     SimpleEQAudioProcessor& audioProcessor;
+
+    KnobLookAndFeel knobLnf;
 
 	CustomRotarySlider peakFreqSlider, peakGainSlider, peakQualitySlider, lowCutFreqSlider, highCutFreqSlider, lowCutSlopeSlider, highCutSlopeSlider;
 

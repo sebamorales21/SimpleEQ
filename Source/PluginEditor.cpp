@@ -163,11 +163,32 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcess
         addAndMakeVisible(comp);
 	}
 
+	// Asignar el LookAndFeel personalizado a los sliders
+	peakFreqSlider.setLookAndFeel(&knobLnf);
+	peakGainSlider.setLookAndFeel(&knobLnf);
+	peakQualitySlider.setLookAndFeel(&knobLnf);
+
+	lowCutFreqSlider.setLookAndFeel(&knobLnf);
+	lowCutSlopeSlider.setLookAndFeel(&knobLnf);
+
+	highCutFreqSlider.setLookAndFeel(&knobLnf);
+	highCutSlopeSlider.setLookAndFeel(&knobLnf);
+
     setSize (375, 525);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
 {
+	// Restaurar el LookAndFeel por defecto para evitar problemas al destruir el editor
+	peakFreqSlider.setLookAndFeel(nullptr);
+	peakGainSlider.setLookAndFeel(nullptr);
+	peakQualitySlider.setLookAndFeel(nullptr);
+
+	lowCutFreqSlider.setLookAndFeel(nullptr);
+	lowCutSlopeSlider.setLookAndFeel(nullptr);
+
+	highCutFreqSlider.setLookAndFeel(nullptr);
+	highCutSlopeSlider.setLookAndFeel(nullptr);
 }
 
 void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
