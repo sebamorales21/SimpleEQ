@@ -12,10 +12,7 @@
 
 KnobLookAndFeel::KnobLookAndFeel()
 {
-    knobStrip = juce::ImageCache::getFromMemory(
-        BinaryData::Main_Knob_png,
-        BinaryData::Main_Knob_pngSize
-    );
+    knobStrip = juce::ImageCache::getFromMemory(BinaryData::Main_Knob_png, BinaryData::Main_Knob_pngSize);
 
     jassert(!knobStrip.isNull());
 
@@ -34,11 +31,7 @@ void KnobLookAndFeel::drawRotarySlider(juce::Graphics& g,
     if (knobStrip.isNull())
         return;
 
-    const int frameIndex = juce::jlimit(
-        0,
-        numFrames - 1,
-        (int)std::round(sliderPosProportional * (numFrames - 1))
-    );
+    const int frameIndex = juce::jlimit(0, numFrames - 1, (int)std::round(sliderPosProportional * (numFrames - 1)));
 
     const int srcX = 0;
     const int srcY = frameIndex * frameSize;
@@ -47,7 +40,5 @@ void KnobLookAndFeel::drawRotarySlider(juce::Graphics& g,
     const int destX = x + (width - size) / 2;
     const int destY = y + (height - size) / 2;
 
-    g.drawImage(knobStrip,
-        destX, destY, size, size,
-        srcX, srcY, frameSize, frameSize);
+    g.drawImage(knobStrip, destX, destY, size, size, srcX, srcY, frameSize, frameSize);
 }

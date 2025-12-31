@@ -174,7 +174,7 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcess
 	highCutFreqSlider.setLookAndFeel(&knobLnf);
 	highCutSlopeSlider.setLookAndFeel(&knobLnf);
 
-    setSize (375, 525);
+    setSize (450, 525);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
