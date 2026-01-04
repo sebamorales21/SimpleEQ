@@ -29,6 +29,7 @@ struct ResponseCurveComponent : juce::Component,
     ResponseCurveComponent(SimpleEQAudioProcessor&);
     ~ResponseCurveComponent() override;
     void paint(juce::Graphics& g) override;
+	void resized() override;
 
 	// Funciones provenientes de AudioProcessorParameter::Listener
     void parameterValueChanged(int parameterIndex, float newValue) override;
@@ -37,13 +38,19 @@ struct ResponseCurveComponent : juce::Component,
 	// Funcion proveniente de Timer
 	void timerCallback() override;
 
-	MonoChain monoChain;
+private:
+    SimpleEQAudioProcessor& audioProcessor;
+
+    juce::Atomic<bool> parametersChanged{ false };
+
+    MonoChain monoChain;
 
     void updateChain();
 
-private:
-    SimpleEQAudioProcessor& audioProcessor;
-    juce::Atomic<bool> parametersChanged{ false };
+    juce::Image background;
+	juce::Rectangle<int> getRenderArea();
+	juce::Rectangle<int> getAnalysisArea(); // Area donde las lineas de gain se dibujan, mas chicas que el area total del componente, para que no choque con los limites
+
 };
 
 //==============================================================================
