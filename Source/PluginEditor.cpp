@@ -196,8 +196,11 @@ void ResponseCurveComponent::resized()
 	const int labelX = getWidth() - rightPadding - labelWidth;
 
 	// Dibujar cada etiqueta de ganancia
+	const int leftLabelWidth = juce::jmax(g.getCurrentFont().getStringWidth("-48"), g.getCurrentFont().getStringWidth("0")) + 2;
+
 	for (const auto gDb : gainLines)
 	{
+		// Etiquetas de ganancia
 		const auto y = juce::jmap(gDb, -24.0f, 24.0f, static_cast<float>(bottom), static_cast<float>(top));
 
 		juce::String str;
@@ -207,6 +210,20 @@ void ResponseCurveComponent::resized()
 		juce::Rectangle<int> r(labelX, juce::roundToInt(y) - fontHeight / 2, labelWidth, fontHeight);
 
 		g.setColour(gDb == 0.0f ? juce::Colours::green : juce::Colours::lightgrey);
+		g.drawFittedText(str, r, juce::Justification::centred, 1);
+
+		// Etiquetas de nivel
+		str.clear();
+		str << (gDb - 24.0f);
+
+		int textWidth;
+		textWidth = g.getCurrentFont().getStringWidth(str);
+
+		r.setX(1);
+		r.setWidth(leftLabelWidth);
+		r.setCentre(r.getCentreX(), juce::roundToInt(y));
+
+		g.setColour(juce::Colours::lightgrey);
 		g.drawFittedText(str, r, juce::Justification::centred, 1);
 	}
 
