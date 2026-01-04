@@ -124,6 +124,7 @@ void ResponseCurveComponent::resized()
 	  900.0f, 1000.0f, 2000.0f, 3000.0f, 4000.0f, 5000.0f, 6000.0f,
 	  7000.0f, 8000.0f, 9000.0f, 10000.0f, 20000.0f };
 
+	// Obtener el area de renderizado
 	auto renderArea = getAnalysisArea();
 	auto left = renderArea.getX();
 	auto right = renderArea.getRight();
@@ -131,6 +132,7 @@ void ResponseCurveComponent::resized()
 	auto bottom = renderArea.getBottom();
 	auto width = renderArea.getWidth();
 
+	// Calcular las posiciones X de las lineas de frecuencia
 	Array<float> xs;
 	for(auto f : freqsLines)
 	{
@@ -138,12 +140,14 @@ void ResponseCurveComponent::resized()
 		xs.add(left + x * width);
 	}
 
+	// Dibujar las lineas verticales de frecuencia
 	g.setColour(Colours::dimgrey);
 	for(auto x : xs)
 	{
 		g.drawVerticalLine(static_cast<int>(x), static_cast<float>(top), static_cast<float>(bottom));
 	}
 
+	// Dibujar las lineas horizontales de ganancia
 	Array<float> gainLines
 	{ -24.0f, -12.0f, 0.0f, 12.0f, 24.0f };
 
@@ -152,6 +156,34 @@ void ResponseCurveComponent::resized()
 		auto y = jmap(gDb, -24.0f, 24.0f, static_cast<float>(bottom), static_cast<float>(top));
 		g.setColour(gDb == 0.0f ? Colours::green : Colours::dimgrey);
 		g.drawHorizontalLine(static_cast<int>(y), static_cast<float>(left), static_cast<float>(right));
+	}
+
+	// Etiquetas de frecuencia
+	g.setColour(juce::Colours::lightgrey);
+	constexpr int fontHeight = 11;
+	g.setFont(static_cast<float>(fontHeight));
+
+	// Solo estas etiquetas:
+	constexpr std::array<float, 3> labelFreqs{ 100.0f, 1000.0f, 10000.0f };
+
+	// Posición Y: arriba del área de análisis, con un pequeño margen
+	const int textY = top - fontHeight - 6;
+
+	// Dibujar cada etiqueta
+	for (const auto f : labelFreqs)
+	{
+		const auto normX = juce::mapFromLog10(f, 20.0f, 20000.0f);
+		const auto x = static_cast<float>(left) + normX * static_cast<float>(width);
+		const int  xi = juce::roundToInt(x);
+
+		const juce::String str = (f >= 1000.0f)
+			? (juce::String(juce::roundToInt(f / 1000.0f)) + " kHz")
+			: (juce::String(juce::roundToInt(f)) + " Hz");
+
+		const int textWidth = g.getCurrentFont().getStringWidth(str);
+
+		juce::Rectangle<int> r(xi - textWidth / 2, textY, textWidth, fontHeight);
+		g.drawFittedText(str, r, juce::Justification::centred, 1);
 	}
 
 }
