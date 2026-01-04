@@ -186,6 +186,31 @@ void ResponseCurveComponent::resized()
 		g.drawFittedText(str, r, juce::Justification::centred, 1);
 	}
 
+	// Etiquetas de ganancia
+	constexpr int rightPadding = 4; // Padding desde el borde derecho
+
+	// Ancho fijo para las etiquetas de ganancia
+	const int labelWidth = juce::jmax(g.getCurrentFont().getStringWidth("-24"), g.getCurrentFont().getStringWidth("+24")) + 2; // +2 por seguridad
+
+	// Caja fija pegada a la derecha, pero con padding
+	const int labelX = getWidth() - rightPadding - labelWidth;
+
+	// Dibujar cada etiqueta de ganancia
+	for (const auto gDb : gainLines)
+	{
+		const auto y = juce::jmap(gDb, -24.0f, 24.0f, static_cast<float>(bottom), static_cast<float>(top));
+
+		juce::String str;
+		if (gDb > 0.0f) str << "+";
+		str << gDb;
+
+		juce::Rectangle<int> r(labelX, juce::roundToInt(y) - fontHeight / 2, labelWidth, fontHeight);
+
+		g.setColour(gDb == 0.0f ? juce::Colours::green : juce::Colours::lightgrey);
+		g.drawFittedText(str, r, juce::Justification::centred, 1);
+	}
+
+
 }
 
 juce::Rectangle<int> ResponseCurveComponent::getRenderArea()
