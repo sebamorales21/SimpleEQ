@@ -13,8 +13,8 @@
 #include <array>
 #include "PluginProcessor.h"
 
-// El ciclo de generación del analizador es el siguiente:
-// 1. Los buffer de audio provenientes del Host, van a SingleChannelSampleFifo, que se encarga de devuelve bloques de tamaño fijo.
+// El ciclo de generacin del analizador es el siguiente:
+// 1. Los buffer de audio provenientes del Host, van a SingleChannelSampleFifo, que se encarga de devuelve bloques de tamao fijo.
 // 2. Estos bloques van a un FFT Data Generator, que los convierte en bloques de datos de FFT.
 // 3. Estos llegan a un Path Producer, que devuelve instancias de juce::Path.
 // 4. Finalmente la GUI los consume y renderiza el Path.

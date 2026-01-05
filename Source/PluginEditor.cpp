@@ -310,6 +310,7 @@ void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
 void ResponseCurveComponent::timerCallback()
 {
 	auto fftBounds = getAnalysisArea().toFloat();
+	fftBounds.removeFromRight(9.0f);
 	auto sampleRate = audioProcessor.getSampleRate();
 
 	leftPathProducer.process(fftBounds, sampleRate);
