@@ -101,24 +101,35 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 	// Inicio del path en el primer punto
 	responseCurve.startNewSubPath(responseArea.getX(), map(mags.front()));
 
+	// Inicio del area de renderizado
+	g.saveState();
+	g.reduceClipRegion(getRenderArea());
+
 	// Linea a cada punto siguiente
 	for (size_t i = 1; i < mags.size(); ++i) {
 		responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
 	}
 
+	// FFT Left Channel
 	auto leftChannelFFTPath = leftPathProducer.getPath();
 	leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
 	g.setColour(Colours::rebeccapurple);
 	g.strokePath(leftChannelFFTPath, PathStrokeType(1));
 
+	// FFT Right Channel
 	auto rightChannelFFTPath = rightPathProducer.getPath();
 	rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
 	g.setColour(Colours::skyblue);
 	g.strokePath(rightChannelFFTPath, PathStrokeType(1));
 
+	// Dibujar la curva de respuesta
 	g.setColour(Colours::white);
 	g.strokePath(responseCurve, PathStrokeType(2.0f));
 
+	// Fin del area de renderizado
+	g.restoreState();
+
+	// Dibujar el borde del area de renderizado
 	g.setColour(Colours::rebeccapurple);
 	g.drawRoundedRectangle(getRenderArea().toFloat(), 4.0f, 3.0f);
 }
@@ -282,7 +293,7 @@ void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
 
 			juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, monoBuffer.getNumSamples() - size), tempIncomingBuffer.getReadPointer(0, 0), size);
 
-			leftChannelFFTDataGenerator.produceFFTDataForRendering(monoBuffer, -48.0f);
+			leftChannelFFTDataGenerator.produceFFTDataForRendering(monoBuffer, -60.0f);
 		}
 	}
 
@@ -376,7 +387,7 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
 {
 	using namespace juce;
 
-    g.fillAll (Colours::black.brighter(0.1));
+    g.fillAll (Colours::black);
 
 }
 
