@@ -10,15 +10,13 @@
 #include "PluginEditor.h"
 
 ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audioProcessor(p),
-leftChannelFifo(&audioProcessor.leftChannelFifo)
+leftPathProducer(audioProcessor.leftChannelFifo),
+rightPathProducer(audioProcessor.rightChannelFifo)
 {
 	const auto& params = audioProcessor.getParameters();
 	for (auto* param : params) {
 		param->addListener(this);
 	}
-
-	leftChannelFFTDataGenerator.changeOrder(FFTOrder::order2048);
-	monoBuffer.setSize(1, leftChannelFFTDataGenerator.getFFTSize());
 
 	// Construye la cadena de filtros inicial antes de que se pinte por primera vez
 	updateChain();
@@ -108,11 +106,15 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 		responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
 	}
 
-	// Arreglar Bug para que el Path de la FFT se dibuje en la posicion correcta
+	auto leftChannelFFTPath = leftPathProducer.getPath();
 	leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
-
 	g.setColour(Colours::rebeccapurple);
 	g.strokePath(leftChannelFFTPath, PathStrokeType(1));
+
+	auto rightChannelFFTPath = rightPathProducer.getPath();
+	rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+	g.setColour(Colours::skyblue);
+	g.strokePath(rightChannelFFTPath, PathStrokeType(1));
 
 	g.setColour(Colours::white);
 	g.strokePath(responseCurve, PathStrokeType(2.0f));
@@ -264,7 +266,7 @@ void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float new
 	parametersChanged.set(true);
 }
 
-void ResponseCurveComponent::timerCallback()
+void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
 {
 	// Logica:
 	// Mientras hayan buffers que pullear desde SingleChannelSimpleFifo se mandan al FFT Data Generator.
@@ -286,9 +288,8 @@ void ResponseCurveComponent::timerCallback()
 
 	// Generar Path a partir de los FFT Data
 	// Esta funcion va a generar un Path en los bounds que le pasemos (Segundo argumento de la funcion generatePath())
-	const auto fftBounds = getAnalysisArea().toFloat();
 	const auto fftSize = leftChannelFFTDataGenerator.getFFTSize();
-	const auto binWidth = audioProcessor.getSampleRate() / (double)fftSize;
+	const auto binWidth = sampleRate / (double)fftSize;
 
 	while (leftChannelFFTDataGenerator.getNumAvailableFFTDataBlocks() > 0)
 	{
@@ -304,6 +305,15 @@ void ResponseCurveComponent::timerCallback()
 	{
 		pathProducer.getPath(leftChannelFFTPath);
 	}
+}
+
+void ResponseCurveComponent::timerCallback()
+{
+	auto fftBounds = getAnalysisArea().toFloat();
+	auto sampleRate = audioProcessor.getSampleRate();
+
+	leftPathProducer.process(fftBounds, sampleRate);
+	rightPathProducer.process(fftBounds, sampleRate);
 
 	if (parametersChanged.compareAndSetBool(false, true))
 	{
