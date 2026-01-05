@@ -366,7 +366,11 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcess
 	lowCutFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowCutFreqSlider),
 	highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider),
 	lowCutSlopeSliderAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlopeSlider),
-	highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider)
+	highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider),
+	lowCutBypassButtonAttachment(audioProcessor.apvts, "LowCut Bypass", lowCutBypassButton),
+	highCutBypassButtonAttachment(audioProcessor.apvts, "HighCut Bypass", highCutBypassButton),
+	peakBypassButtonAttachment(audioProcessor.apvts, "Peak Bypass", peakBypassButton),
+	analyzerBypassButtonAttachment(audioProcessor.apvts, "Analyzer Enabled", analyzerBypassButton)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
