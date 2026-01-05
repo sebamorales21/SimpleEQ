@@ -65,23 +65,27 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 		if (!monoChain.isBypassed<ChainPositions::Peak>())
 			mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);  // Aca uso -> porque peak es un IIRFilter y coefficients es un puntero a IIRCoefficients dentro de IIRFilter
 
-		if (!lowcut.isBypassed<0>())
-			mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-		if (!lowcut.isBypassed<1>())
-			mag *= lowcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-		if (!lowcut.isBypassed<2>())
-			mag *= lowcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-		if (!lowcut.isBypassed<3>())
-			mag *= lowcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+		if (!monoChain.isBypassed<ChainPositions::LowCut>()) {
+			if (!lowcut.isBypassed<0>())
+				mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+			if (!lowcut.isBypassed<1>())
+				mag *= lowcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+			if (!lowcut.isBypassed<2>())
+				mag *= lowcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+			if (!lowcut.isBypassed<3>())
+				mag *= lowcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+		}
 
-		if (!highcut.isBypassed<0>())
-			mag *= highcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-		if (!highcut.isBypassed<1>())
-			mag *= highcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-		if (!highcut.isBypassed<2>())
-			mag *= highcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-		if (!highcut.isBypassed<3>())
-			mag *= highcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+		if (!monoChain.isBypassed<ChainPositions::HighCut>()) {
+			if (!highcut.isBypassed<0>())
+				mag *= highcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+			if (!highcut.isBypassed<1>())
+				mag *= highcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+			if (!highcut.isBypassed<2>())
+				mag *= highcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+			if (!highcut.isBypassed<3>())
+				mag *= highcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+		}
 
 		// Guardamos la magnitud en el vector
 		mags[i] = Decibels::gainToDecibels(mag);
@@ -340,6 +344,11 @@ void ResponseCurveComponent::timerCallback()
 
 void ResponseCurveComponent::updateChain() {
 	auto chainSettings = getChainSettings(audioProcessor.apvts);
+
+	// Chequear si algun filtro esta bypassed
+	monoChain.setBypassed<ChainPositions::Peak>(chainSettings.peakBypassed);
+	monoChain.setBypassed<ChainPositions::LowCut>(chainSettings.lowCutBypassed);
+	monoChain.setBypassed<ChainPositions::HighCut>(chainSettings.highCutBypassed);
 
 	// Actualizar los coeficientes del filtro peak
 	auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
