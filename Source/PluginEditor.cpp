@@ -61,6 +61,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 		// Empezamos con una magnitud de 1.0 (0 dB)
 		double mag = 1.0;
 
+		// Se multiplican las magnitudes de cada filtro si no estan bypassed
 		if (!monoChain.isBypassed<ChainPositions::Peak>())
 			mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);  // Aca uso -> porque peak es un IIRFilter y coefficients es un puntero a IIRCoefficients dentro de IIRFilter
 
@@ -409,12 +410,15 @@ void SimpleEQAudioProcessorEditor::resized()
 	auto highCutArea = bounds.removeFromRight(bounds.getWidth() * 0.5);
 
 	// Posicionamiento de los knobs de cada seccion
+	lowCutBypassButton.setBounds(lowCutArea.removeFromTop(25));
     lowCutFreqSlider.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 0.5));
 	lowCutSlopeSlider.setBounds(lowCutArea);
 
+	highCutBypassButton.setBounds(highCutArea.removeFromTop(25));
 	highCutFreqSlider.setBounds(highCutArea.removeFromTop(highCutArea.getHeight() * 0.5));
 	highCutSlopeSlider.setBounds(highCutArea);
 
+	peakBypassButton.setBounds(bounds.removeFromTop(25));
 	peakFreqSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.33));
 	peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
 	peakQualitySlider.setBounds(bounds);
@@ -424,5 +428,7 @@ void SimpleEQAudioProcessorEditor::resized()
 
 std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps() {
 	// Devuelve un vector con punteros a todos los sliders del editor, para luego poder iterar sobre ellos y añadirlos todos de una vez.
-    return { &peakFreqSlider, &peakGainSlider, &peakQualitySlider, &lowCutFreqSlider, &highCutFreqSlider, &lowCutSlopeSlider, &highCutSlopeSlider, &responseCurveComponent };
+    return { &peakFreqSlider, &peakGainSlider, &peakQualitySlider, &lowCutFreqSlider, &highCutFreqSlider,
+		     &lowCutSlopeSlider, &highCutSlopeSlider, &responseCurveComponent, &lowCutBypassButton, &peakBypassButton,
+		     &highCutBypassButton, &analyzerBypassButton};
 }
