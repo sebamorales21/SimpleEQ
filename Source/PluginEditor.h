@@ -16,9 +16,11 @@
 // CustomRotarySlider es una clase que en su cuerpo solo tiene un constructor.
 // El constructor llama al constructor de la clase base Slider con los parametros adecuados.    
 // El constructor de una clase derivada puede llamar al constructor de la clase base usando la sintaxis de lista de inicializacion. Como en este caso.
-struct CustomRotarySlider : juce::Slider {
-    CustomRotarySlider() : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, juce::Slider::TextEntryBoxPosition::NoTextBox) {
-    
+struct CustomRotarySlider : juce::Slider 
+{
+    CustomRotarySlider() : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, juce::Slider::TextEntryBoxPosition::TextBoxBelow) 
+    {
+
     }
 };
 
