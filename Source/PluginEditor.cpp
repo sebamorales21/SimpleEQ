@@ -108,6 +108,9 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 		responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
 	}
 
+	// Arreglar Bug para que el Path de la FFT se dibuje en la posicion correcta
+	leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+
 	g.setColour(Colours::rebeccapurple);
 	g.strokePath(leftChannelFFTPath, PathStrokeType(1));
 
