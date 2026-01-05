@@ -51,6 +51,15 @@ private:
 	juce::Rectangle<int> getRenderArea();
 	juce::Rectangle<int> getAnalysisArea(); // Area donde las lineas de gain se dibujan, mas chicas que el area total del componente, para que no choque con los limites
 
+    SingleChannelSampleFifo<SimpleEQAudioProcessor::BlockType>* leftChannelFifo;
+
+    juce::AudioBuffer<float> monoBuffer;
+
+    FFTDataGenerator<std::vector<float>> leftChannelFFTDataGenerator;
+
+    AnalyzerPathGenerator<juce::Path> pathProducer;
+
+    juce::Path leftChannelFFTPath;
 };
 
 //==============================================================================

@@ -4,6 +4,7 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="mB4Yv7" name="SimpleEQ">
     <GROUP id="{A707365C-4250-EC1E-7426-424AF1652755}" name="Source">
+      <FILE id="aDObx4" name="Analizador.h" compile="0" resource="0" file="Source/Analizador.h"/>
       <FILE id="tx7Cx4" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="Q3vIQ2" name="PluginProcessor.h" compile="0" resource="0"

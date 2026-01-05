@@ -9,12 +9,16 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audioProcessor(p)
+ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audioProcessor(p),
+leftChannelFifo(&audioProcessor.leftChannelFifo)
 {
 	const auto& params = audioProcessor.getParameters();
 	for (auto* param : params) {
 		param->addListener(this);
 	}
+
+	leftChannelFFTDataGenerator.changeOrder(FFTOrder::order2048);
+	monoBuffer.setSize(1, leftChannelFFTDataGenerator.getFFTSize());
 
 	// Construye la cadena de filtros inicial antes de que se pinte por primera vez
 	updateChain();
@@ -105,10 +109,13 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 	}
 
 	g.setColour(Colours::rebeccapurple);
-	g.drawRoundedRectangle(getRenderArea().toFloat(), 4.0f, 3.0f);
+	g.strokePath(leftChannelFFTPath, PathStrokeType(1));
 
 	g.setColour(Colours::white);
 	g.strokePath(responseCurve, PathStrokeType(2.0f));
+
+	g.setColour(Colours::rebeccapurple);
+	g.drawRoundedRectangle(getRenderArea().toFloat(), 4.0f, 3.0f);
 }
 
 void ResponseCurveComponent::resized()
@@ -256,12 +263,53 @@ void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float new
 
 void ResponseCurveComponent::timerCallback()
 {
+	// Logica:
+	// Mientras hayan buffers que pullear desde SingleChannelSimpleFifo se mandan al FFT Data Generator.
+	juce::AudioBuffer<float> tempIncomingBuffer;
+
+	while (leftChannelFifo->getNumCompleteBuffersAvailable() > 0)
+	{
+		if (leftChannelFifo->getAudioBuffer(tempIncomingBuffer))
+		{
+			auto size = tempIncomingBuffer.getNumSamples();
+
+			juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, 0), monoBuffer.getReadPointer(0, size), monoBuffer.getNumSamples() - size);
+
+			juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, monoBuffer.getNumSamples() - size), tempIncomingBuffer.getReadPointer(0, 0), size);
+
+			leftChannelFFTDataGenerator.produceFFTDataForRendering(monoBuffer, -48.0f);
+		}
+	}
+
+	// Generar Path a partir de los FFT Data
+	// Esta funcion va a generar un Path en los bounds que le pasemos (Segundo argumento de la funcion generatePath())
+	const auto fftBounds = getAnalysisArea().toFloat();
+	const auto fftSize = leftChannelFFTDataGenerator.getFFTSize();
+	const auto binWidth = audioProcessor.getSampleRate() / (double)fftSize;
+
+	while (leftChannelFFTDataGenerator.getNumAvailableFFTDataBlocks() > 0)
+	{
+		std::vector<float> fftData;
+		if (leftChannelFFTDataGenerator.getFFTData(fftData))
+		{
+			pathProducer.generatePath(fftData, fftBounds, fftSize, binWidth, -48.0f);
+		}
+	}
+
+	// Mientras hayan Paths que se puedan pullear, pullea tantos como podamosy mostramos el mas reciente
+	while (pathProducer.getNumPathsAvailable())
+	{
+		pathProducer.getPath(leftChannelFFTPath);
+	}
+
 	if (parametersChanged.compareAndSetBool(false, true))
 	{
 		// Si los parametros han cambiado (true), actualizamos la cadena y repintamos y parametrosChanged a false
 		updateChain();
-		repaint();
+		// repaint(); Ahora hay que repintar todo el rato (FFT Analyzer), no solo cuando cambien parametros.
 	}
+
+	repaint();
 }
 
 void ResponseCurveComponent::updateChain() {

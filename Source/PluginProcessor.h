@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Analizador.h"
 
 enum Slope {
     Slope_12,
@@ -133,6 +134,11 @@ public:
     // Lo nuevo
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState apvts{ *this, nullptr, "Parametros", createParameterLayout() };
+
+	//==============================================================================
+	using BlockType = juce::AudioBuffer<float>;
+	SingleChannelSampleFifo<BlockType> leftChannelFifo{ Channel::Left };
+    SingleChannelSampleFifo<BlockType> rightChannelFifo{ Channel::Right };
 
 private:
 
