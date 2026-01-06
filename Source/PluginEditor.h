@@ -18,10 +18,63 @@
 // El constructor de una clase derivada puede llamar al constructor de la clase base usando la sintaxis de lista de inicializacion. Como en este caso.
 struct CustomRotarySlider : juce::Slider 
 {
-    CustomRotarySlider() : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, juce::Slider::TextEntryBoxPosition::TextBoxBelow) 
+    CustomRotarySlider() : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, juce::Slider::TextEntryBoxPosition::NoTextBox) 
     {
 
     }
+};
+
+struct MyLookAndFeel : juce::LookAndFeel_V4
+{
+    void drawToggleButton(juce::Graphics& g,
+        juce::ToggleButton& button,
+        bool shouldDrawButtonAsHighlighted,
+        bool shouldDrawButtonAsDown) override
+    {
+        auto bounds = button.getLocalBounds().toFloat();
+
+        // Tamaño del círculo (el menor lado)
+        const float size = juce::jmin(bounds.getWidth(), bounds.getHeight());
+
+        // Rectángulo centrado
+        auto circleBounds = juce::Rectangle<float>()
+            .withSizeKeepingCentre(size * 0.6f, size * 0.6f)
+            .withCentre(bounds.getCentre());
+
+        // Color según estado
+        g.setColour(button.getToggleState() ? juce::Colours::grey
+            : juce::Colours::green);
+
+        g.fillEllipse(circleBounds);
+    }
+
+    void drawRotarySlider(juce::Graphics& g,
+        int x, int y, int width, int height,
+        float sliderPosProportional,
+        float rotaryStartAngle,
+        float rotaryEndAngle,
+        juce::Slider& slider) override
+    {
+        auto bounds = juce::Rectangle<float>(x, y, width, height).reduced(10);
+        auto radius = juce::jmin(bounds.getWidth(), bounds.getHeight()) / 2.0f;
+        auto centreX = bounds.getCentreX();
+        auto centreY = bounds.getCentreY();
+        auto rx = centreX - radius;
+        auto ry = centreY - radius;
+        auto rw = radius * 2.0f;
+        auto angle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
+
+        // Cuerpo del knob
+        g.setColour(juce::Colours::rebeccapurple);
+        g.fillEllipse(rx, ry, rw, rw);
+
+        // Indicador del knob
+        juce::Path p;
+        p.addRectangle(-2.0f, -radius, 4.0f, radius * 0.6f);
+        p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
+        g.setColour(juce::Colours::antiquewhite);
+        g.fillPath(p);
+	}
 };
 
 struct PathProducer
@@ -95,6 +148,8 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     SimpleEQAudioProcessor& audioProcessor;
+
+    MyLookAndFeel lnf;
 
 	CustomRotarySlider peakFreqSlider, peakGainSlider, peakQualitySlider, lowCutFreqSlider, highCutFreqSlider, lowCutSlopeSlider, highCutSlopeSlider;
 

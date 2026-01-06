@@ -390,11 +390,35 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcess
         addAndMakeVisible(comp);
 	}
 
+	lowCutFreqSlider.setLookAndFeel(&lnf);
+	lowCutSlopeSlider.setLookAndFeel(&lnf);
+	highCutFreqSlider.setLookAndFeel(&lnf);
+	highCutSlopeSlider.setLookAndFeel(&lnf);
+	peakFreqSlider.setLookAndFeel(&lnf);
+	peakGainSlider.setLookAndFeel(&lnf);
+	peakQualitySlider.setLookAndFeel(&lnf);
+
+
+	lowCutBypassButton.setLookAndFeel(&lnf);
+	highCutBypassButton.setLookAndFeel(&lnf);
+	peakBypassButton.setLookAndFeel(&lnf);
+
     setSize (375, 525);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
 {
+	lowCutFreqSlider.setLookAndFeel(nullptr);
+	lowCutSlopeSlider.setLookAndFeel(nullptr);
+	highCutFreqSlider.setLookAndFeel(nullptr);
+	highCutSlopeSlider.setLookAndFeel(nullptr);
+	peakFreqSlider.setLookAndFeel(nullptr);
+	peakGainSlider.setLookAndFeel(nullptr);
+	peakQualitySlider.setLookAndFeel(nullptr);
+
+	lowCutBypassButton.setLookAndFeel(nullptr);
+	highCutBypassButton.setLookAndFeel(nullptr);
+	peakBypassButton.setLookAndFeel(nullptr);
 }
 
 void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
